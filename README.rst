@@ -1,6 +1,8 @@
 modoboa-pfxadmin-migrate
 ========================
 
+|landscape|
+
 A script to migrate from PostfixAdmin to Modoboa. It has been tested
 against versions 2.3.3 and upper.
 
@@ -66,3 +68,7 @@ The procedure is over, edit the ``settings.py`` file and:
 
 You should be able to connect to Modoboa using the same credentials
 you were using to connect to PostfixAdmin.
+
+.. |landscape| image:: https://landscape.io/github/modoboa/modoboa-pfxadmin-migrate/master/landscape.svg?style=flat
+   :target: https://landscape.io/github/modoboa/modoboa-pfxadmin-migrate/master
+   :alt: Code Health
