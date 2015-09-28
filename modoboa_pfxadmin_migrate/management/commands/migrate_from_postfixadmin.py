@@ -218,7 +218,10 @@ class Command(BaseCommand):
             print "\tMigrating administrators"
 
         dagroup = Group.objects.using(options["_to"]).get(name="DomainAdmins")
-        for old_admin in pf_domain.admins.all():
+        qset = pf_models.DomainAdmins.objects.filter(
+            domain=pf_domain, active=True)
+        for old_permission in qset.all():
+            old_admin = old_permission.username
             if newdom is None:
                 print "\tMigrating %s" % old_admin.username
 
