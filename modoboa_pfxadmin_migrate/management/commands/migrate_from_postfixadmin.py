@@ -218,7 +218,7 @@ class Command(BaseCommand):
             print "\tMigrating administrators"
 
         dagroup = Group.objects.using(options["_to"]).get(name="DomainAdmins")
-        qset = pf_models.DomainAdmins.objects.filter(
+        qset = pf_models.DomainAdmins.objects.using(options["_from"]).filter(
             domain=pf_domain, active=True)
         for old_permission in qset.all():
             old_admin = old_permission.username
@@ -272,16 +272,15 @@ class Command(BaseCommand):
         creator = core_models.User.objects.using(options["_to"]).get(
             username=creator_username)
         for pf_domain in pf_domains:
-
-            try:
-                # Skip this domain if it's an alias
-                is_domain_alias = pf_models.AliasDomain.objects \
-                    .using(options["_from"]).get(alias_domain=pf_domain.domain)
+            is_domain_alias = (
+                pf_models.AliasDomain.objects.using(options["_from"])
+                .filter(alias_domain=pf_domain.domain).exists()
+            )
+            if is_domain_alias:
                 print "Info: %s looks like an alias domain, skipping it" \
                     % pf_domain.domain
                 continue
-            except pf_models.AliasDomain.DoesNotExist:
-                self._migrate_domain(pf_domain, options, creator)
+            self._migrate_domain(pf_domain, options, creator)
 
         # Handle the ALL domain
         pf_domain = pf_models.Domain.objects.using(
