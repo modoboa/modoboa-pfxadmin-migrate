@@ -132,35 +132,34 @@ class Command(BaseCommand):
             if old_al.address == old_al.goto:
                 continue
             new_al = admin_models.Alias()
-            local_part, tmp = split_mailbox(old_al.address)
-            if local_part is None or not len(local_part):
-                if tmp is None or not len(tmp):
+            local_part, domname = split_mailbox(old_al.address)
+            if not local_part:
+                if not domname:
                     print (
                         "Warning: skipping alias %s (cannot retrieve local "
                         "part). You will need to recreate it manually."
                         % old_al.address
                     )
                     continue
-                new_al.address = "*"
+                new_al.address = "@{}".format(domname)
             else:
-                new_al.address = local_part
+                new_al.address = old_al.address
             new_al.domain = domain
             new_al.enabled = old_al.active
-            extmboxes = []
-            intmboxes = []
+            to_create = []
             for goto in old_al.goto.split(","):
+                alr = admin_models.AliasRecipient(address=goto, alias=new_al)
                 try:
                     mb = admin_models.Mailbox.objects \
                         .using(options["_to"]).get(user__username=goto)
                 except admin_models.Mailbox.DoesNotExist:
-                    extmboxes += [goto]
+                    pass
                 else:
-                    intmboxes += [mb]
+                    alr.r_mailbox = mb
+                to_create.append(alr)
             new_al.dates = self._migrate_dates(old_al)
-            new_al.save(
-                int_rcpts=intmboxes, ext_rcpts=extmboxes, creator=creator,
-                using=options["_to"]
-            )
+            new_al.save(creator=creator, using=options["_to"])
+            admin_models.AliasRecipient.objects.bulk_create(to_create)
 
     def _migrate_mailboxes(self, domain, options, creator):
         """Migrate mailboxes of a single domain."""
