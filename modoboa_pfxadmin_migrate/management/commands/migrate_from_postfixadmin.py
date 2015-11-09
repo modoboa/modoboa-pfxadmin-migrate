@@ -159,7 +159,8 @@ class Command(BaseCommand):
                 to_create.append(alr)
             new_al.dates = self._migrate_dates(old_al)
             new_al.save(creator=creator, using=options["_to"])
-            admin_models.AliasRecipient.objects.bulk_create(to_create)
+            admin_models.AliasRecipient.objects.using(
+                options["_to"]).bulk_create(to_create)
 
     def _migrate_mailboxes(self, domain, options, creator):
         """Migrate mailboxes of a single domain."""
