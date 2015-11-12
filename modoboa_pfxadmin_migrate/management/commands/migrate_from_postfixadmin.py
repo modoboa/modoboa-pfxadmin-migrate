@@ -146,6 +146,8 @@ class Command(BaseCommand):
                 new_al.address = old_al.address
             new_al.domain = domain
             new_al.enabled = old_al.active
+            new_al.dates = self._migrate_dates(old_al)
+            new_al.save(creator=creator, using=options["_to"])
             to_create = []
             for goto in old_al.goto.split(","):
                 alr = admin_models.AliasRecipient(address=goto, alias=new_al)
@@ -157,8 +159,6 @@ class Command(BaseCommand):
                 else:
                     alr.r_mailbox = mb
                 to_create.append(alr)
-            new_al.dates = self._migrate_dates(old_al)
-            new_al.save(creator=creator, using=options["_to"])
             admin_models.AliasRecipient.objects.using(
                 options["_to"]).bulk_create(to_create)
 
