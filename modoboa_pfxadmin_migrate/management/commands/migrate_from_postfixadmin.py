@@ -39,11 +39,10 @@ from django.contrib.auth.models import Group
 from django.core.management.base import BaseCommand
 from django.db import transaction
 
-import modoboa.core.models as core_models
+from modoboa.admin import models as admin_models
+from modoboa.admin.callbacks import grant_access_to_all_objects
+from modoboa.core import models as core_models
 from modoboa.lib.email_utils import split_mailbox
-
-from modoboa_admin.modo_extension import grant_access_to_all_objects
-import modoboa_admin.models as admin_models
 
 from ... import models as pf_models
 
@@ -289,5 +288,5 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         """Command entry point."""
-        with transaction.commit_on_success():
+        with transaction.atomic():
             self._do_migration(options)
