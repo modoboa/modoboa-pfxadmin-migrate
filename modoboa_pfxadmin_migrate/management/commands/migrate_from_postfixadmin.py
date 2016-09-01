@@ -176,7 +176,7 @@ class Command(BaseCommand):
                 new_user, old_mb.password, options["passwords_scheme"])
             new_user.dates = self._migrate_dates(old_mb)
             new_user.save(creator=creator, using=options["_to"])
-            new_user.set_role("SimpleUsers")
+            new_user.role = "SimpleUsers"
 
             new_mb = admin_models.Mailbox()
             new_mb.user = new_user
