@@ -1,6 +1,7 @@
 # coding: utf-8
 
-"""Automatic postfixadmin to Modoboa migration
+"""
+Automatic postfixadmin to Modoboa migration
 ===========================================
 
 This script provides an easy way to migrate an existing postfixadmin
@@ -32,7 +33,7 @@ used by PostfixAdmin.
    PostfixAdmin ``md5crypt`` algorithm...
 
 """
-from optparse import make_option
+
 import re
 
 from django.contrib.auth.models import Group
@@ -61,26 +62,23 @@ def set_account_password(account, password, scheme):
 
 
 class Command(BaseCommand):
-
     """Migration from postfixadmin."""
 
     help = "This command eases the migration from a postfixadmin database."
-    option_list = BaseCommand.option_list + (
-        make_option(
+
+    def add_arguments(self, parser):
+        """Add extra arguments to command."""
+        parser.add_argument(
             "-f", "--from", dest="_from", default="pfxadmin",
             help="Name of postfixadmin db connection declared in settings.py"
-            "(default is pfxadmin)"
-        ),
-        make_option(
+            "(default is pfxadmin)")
+        parser.add_argument(
             "-t", "--to", dest="_to", default="default",
             help="Name of the Modoboa db connection declared in settings.py"
-            " (default is default)"
-        ),
-        make_option(
+            " (default is default)")
+        parser.add_argument(
             "-s", "--passwords-scheme", default="crypt",
-            help="Scheme used to crypt user passwords"
-        )
-    )
+            help="Scheme used to crypt user passwords")
 
     def _migrate_dates(self, oldobj):
         """Creates a new ObjectDates instance.
