@@ -57,7 +57,7 @@ def read(fname):
 
 setup(
     name="modoboa-pfxadmin-migrate",
-    version='1.0.0',
+    version='1.0.1',
     url='http://modoboa.org/',
     license='MIT',
     description="A script to migrate from PostfixAdmin to Modoboa",
