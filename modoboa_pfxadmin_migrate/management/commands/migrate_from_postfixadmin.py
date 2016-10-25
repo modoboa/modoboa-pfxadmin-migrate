@@ -232,12 +232,12 @@ class Command(BaseCommand):
                 user = core_models.User.objects \
                     .using(options["_to"]).get(username=old_admin.username)
 
-                if "SimpleUsers" == user.group:
+                if "SimpleUsers" == user.role:
                     print (
                         "Warning: Found an admin account with the same "
                         "username as normal user '%s'. The existing user will "
-                        "be promoted to admin and it's password changed to the "
-                        "admin's account password. " % user.username
+                        "be promoted to admin and it's password changed to "
+                        "the admin's account password. " % user.username
                     )
 
             except core_models.User.DoesNotExist:

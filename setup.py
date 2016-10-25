@@ -4,6 +4,8 @@ import re
 import os
 from setuptools import setup, find_packages
 
+from modoboa_pfxadmin_migrate import __version__
+
 ROOT = os.path.dirname(__file__)
 
 
@@ -57,7 +59,7 @@ def read(fname):
 
 setup(
     name="modoboa-pfxadmin-migrate",
-    version='1.0.1',
+    version=__version__,
     url='http://modoboa.org/',
     license='MIT',
     description="A script to migrate from PostfixAdmin to Modoboa",
