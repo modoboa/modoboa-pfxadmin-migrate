@@ -41,8 +41,8 @@ from django.core.management.base import BaseCommand
 from django.db import transaction
 
 from modoboa.admin import models as admin_models
-from modoboa.admin.callbacks import grant_access_to_all_objects
 from modoboa.core import models as core_models
+from modoboa.core import signals as core_signals
 from modoboa.lib.email_utils import split_mailbox
 
 from ... import models as pf_models
@@ -252,7 +252,8 @@ class Command(BaseCommand):
                 user, old_admin.password, options["passwords_scheme"])
 
             if newdom is None:
-                grant_access_to_all_objects(user, "SuperAdmins")
+                core_signals.account_role_changed.send(
+                    sender="migrate_admins", account=user, role="SuperAdmins")
                 user.is_superuser = True
             else:
                 user.groups.add(dagroup)
