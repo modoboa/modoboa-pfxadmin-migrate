@@ -175,7 +175,8 @@ class Command(BaseCommand):
             new_user.last_name = old_mb.name.partition(' ')[2]
             new_user.email = old_mb.username
             new_user.is_active = old_mb.active
-            new_user.date_joined = old_mb.created
+            if old_mb.created:
+                new_user.date_joined = old_mb.created
             set_account_password(
                 new_user, old_mb.password, options["passwords_scheme"])
             new_user.dates = self._migrate_dates(old_mb)
