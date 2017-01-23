@@ -39,6 +39,7 @@ import re
 from django.contrib.auth.models import Group
 from django.core.management.base import BaseCommand
 from django.db import transaction
+from django.utils import timezone
 
 from modoboa.admin import models as admin_models
 from modoboa.admin.callbacks import grant_access_to_all_objects
@@ -93,7 +94,10 @@ class Command(BaseCommand):
         dates = admin_models.base.ObjectDates()
         dates.save()
 
-        dates.creation = oldobj.created
+        if oldobj.created:
+            dates.creation = oldobj.created
+        else:
+            dates.creation = timezone.now()
         dates.save()
         return dates
 
@@ -247,7 +251,8 @@ class Command(BaseCommand):
                 user.is_active = old_admin.active
                 user.save(creator=creator, using=options["_to"])
 
-            user.date_joined = old_admin.modified
+            if old_admin.modified:
+                user.date_joined = old_admin.modified
             set_account_password(
                 user, old_admin.password, options["passwords_scheme"])
 
