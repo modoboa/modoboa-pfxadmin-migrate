@@ -182,8 +182,9 @@ class Command(BaseCommand):
             new_user.save(creator=creator, using=options["_to"])
             new_user.role = "SimpleUsers"
 
+            local_part = split_mailbox(old_mb.username)[0]
             new_mb = admin_models.Mailbox(
-                user=new_user, address=old_mb.local_part, domain=domain)
+                user=new_user, address=local_part, domain=domain)
             new_mb.dates = self._migrate_dates(old_mb)
             new_mb.set_quota(old_mb.quota / 1024000, override_rules=True)
             new_mb.save(creator=creator, using=options["_to"])
