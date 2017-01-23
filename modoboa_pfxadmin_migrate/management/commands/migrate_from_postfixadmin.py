@@ -278,9 +278,7 @@ class Command(BaseCommand):
             self._migrate_domain(pf_domain, options, creator)
 
         # Handle the ALL domain
-        pf_domain = pf_models.Domain.objects.using(
-            options["_from"]).get(domain='ALL')
-        self._migrate_admins(options, creator, pf_domain)
+        self._migrate_admins(options, creator, "ALL")
 
     def handle(self, *args, **options):
         """Command entry point."""
