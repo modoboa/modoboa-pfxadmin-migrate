@@ -81,25 +81,21 @@ class Command(BaseCommand):
             "-s", "--passwords-scheme", default="crypt",
             help="Scheme used to crypt user passwords")
 
-    def _migrate_dates(self, oldobj):
-        """Creates a new ObjectDates instance.
+    def _migrate_dates(self, newobj, oldobj):
+        """Migrate dates.
 
         Due to Django limitations, we only retrieve the creation date. The
         modification date will be set to 'now' because the corresponding
         field in Modoboa's schema has the 'auto_now' attribute to True.
         (see https://docs.djangoproject.com/en/dev/ref/models/fields/#django.db.models.DateField).
 
+        :param newobj: Modoboa object being created.
         :param oldobj: the PostfixAdmin record which is beeing migrated.
         """
-        dates = admin_models.base.ObjectDates()
-        dates.save()
-
         if oldobj.created:
-            dates.creation = oldobj.created
+            newobj.creation = oldobj.created
         else:
-            dates.creation = timezone.now()
-        dates.save()
-        return dates
+            newobj.creation = timezone.now()
 
     def _migrate_domain_aliases(self, domain, options, creator):
         """Migrate aliases of a single domain."""
@@ -115,7 +111,7 @@ class Command(BaseCommand):
                 new_da.name = old_da.alias_domain
                 new_da.target = target_domain
                 new_da.enabled = old_da.active
-                new_da.dates = self._migrate_dates(old_da)
+                self._migrate_dates(new_da, old_da)
                 new_da.save(using=options["_to"])
                 new_da.post_create(creator)
             except core_models.Domain.DoesNotExist:
@@ -147,7 +143,7 @@ class Command(BaseCommand):
                 new_al.address = old_al.address
             new_al.domain = domain
             new_al.enabled = old_al.active
-            new_al.dates = self._migrate_dates(old_al)
+            self._migrate_dates(new_al, old_al)
             new_al.save(creator=creator, using=options["_to"])
             to_create = []
             for goto in old_al.goto.split(","):
@@ -179,14 +175,13 @@ class Command(BaseCommand):
                 new_user.date_joined = old_mb.created
             set_account_password(
                 new_user, old_mb.password, options["passwords_scheme"])
-            new_user.dates = self._migrate_dates(old_mb)
             new_user.save(creator=creator, using=options["_to"])
             new_user.role = "SimpleUsers"
 
             local_part = split_mailbox(old_mb.username)[0]
             new_mb = admin_models.Mailbox(
                 user=new_user, address=local_part, domain=domain)
-            new_mb.dates = self._migrate_dates(old_mb)
+            self._migrate_dates(new_mb, old_mb)
             new_mb.set_quota(old_mb.quota / 1024000, override_rules=True)
             new_mb.save(creator=creator, using=options["_to"])
 
@@ -197,7 +192,7 @@ class Command(BaseCommand):
         newdom.name = pf_domain.domain
         newdom.enabled = pf_domain.active
         newdom.quota = pf_domain.maxquota
-        newdom.dates = self._migrate_dates(pf_domain)
+        self._migrate_dates(newdom, pf_domain)
         newdom.save(creator=creator, using=options["_to"])
         self._migrate_domain_aliases(newdom, options, creator)
         self._migrate_mailboxes(newdom, options, creator)
@@ -235,8 +230,9 @@ class Command(BaseCommand):
             # use?. The admin password is used to be on the secure
             # side.
             try:
-                user = core_models.User.objects \
-                    .using(options["_to"]).get(username=old_admin.username)
+                user = (
+                    core_models.User.objects
+                    .using(options["_to"]).get(username=old_admin.username))
 
                 if "SimpleUsers" == user.role:
                     print (
