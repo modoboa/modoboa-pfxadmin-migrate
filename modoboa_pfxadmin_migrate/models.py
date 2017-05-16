@@ -20,7 +20,7 @@ class Admin(models.Model):
     password = models.CharField(max_length=255)
     created = models.DateTimeField()
     modified = models.DateTimeField()
-    active = models.IntegerField()
+    active = models.BooleanField()
 
     class Meta:
         db_table = u'admin'
@@ -34,7 +34,7 @@ class Alias(models.Model):
     domain = models.CharField(max_length=255)
     created = models.DateTimeField()
     modified = models.DateTimeField()
-    active = models.IntegerField()
+    active = models.BooleanField()
 
     class Meta:
         db_table = u'alias'
@@ -47,7 +47,7 @@ class AliasDomain(models.Model):
     target_domain = models.CharField(max_length=255)
     created = models.DateTimeField()
     modified = models.DateTimeField()
-    active = models.IntegerField()
+    active = models.BooleanField()
 
     class Meta:
         db_table = u'alias_domain'
@@ -77,7 +77,7 @@ class Domain(models.Model):
     backupmx = models.IntegerField()
     created = models.DateTimeField()
     modified = models.DateTimeField()
-    active = models.IntegerField()
+    active = models.BooleanField()
     admins = models.ManyToManyField(Admin, through='DomainAdmins')
 
     class Meta:
@@ -90,7 +90,7 @@ class DomainAdmins(models.Model):
     username = models.ForeignKey(Admin, db_column='username')
     domain = models.ForeignKey(Domain, db_column='domain')
     created = models.DateTimeField(primary_key=True)
-    active = models.IntegerField()
+    active = models.BooleanField()
 
     class Meta:
         db_table = u'domain_admins'
@@ -145,7 +145,7 @@ class Mailbox(models.Model):
     domain = models.CharField(max_length=255)
     created = models.DateTimeField()
     modified = models.DateTimeField()
-    active = models.IntegerField()
+    active = models.BooleanField()
 
     class Meta:
         db_table = u'mailbox'
@@ -182,7 +182,7 @@ class Vacation(models.Model):
     cache = models.TextField()
     domain = models.CharField(max_length=255)
     created = models.DateTimeField()
-    active = models.IntegerField()
+    active = models.BooleanField()
 
     class Meta:
         db_table = u'vacation'
