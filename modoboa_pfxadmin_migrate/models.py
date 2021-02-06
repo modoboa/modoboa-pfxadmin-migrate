@@ -13,6 +13,7 @@
 # sqlcustom [appname]' into your database.
 
 from django.db import models
+from django.db.models.deletion import CASCADE
 
 
 class Admin(models.Model):
@@ -87,8 +88,9 @@ class Domain(models.Model):
 
 
 class DomainAdmins(models.Model):
-    username = models.ForeignKey(Admin, db_column='username')
-    domain = models.ForeignKey(Domain, db_column='domain')
+    username = models.ForeignKey(Admin, db_column='username',
+                                 on_delete=CASCADE)
+    domain = models.ForeignKey(Domain, db_column='domain', on_delete=CASCADE)
     created = models.DateTimeField(primary_key=True)
     active = models.BooleanField()
 
@@ -191,7 +193,8 @@ class Vacation(models.Model):
 
 
 class VacationNotification(models.Model):
-    on_vacation = models.ForeignKey(Vacation, db_column='on_vacation')
+    on_vacation = models.ForeignKey(Vacation, db_column='on_vacation',
+                                    on_delete=CASCADE)
     notified = models.CharField(max_length=255, primary_key=True)
     notified_at = models.DateTimeField()
 

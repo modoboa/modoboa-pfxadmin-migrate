@@ -99,7 +99,7 @@ class Command(BaseCommand):
 
     def _migrate_domain_aliases(self, domain, options, creator):
         """Migrate aliases of a single domain."""
-        print "\tMigrating domain aliases"
+        print("\tMigrating domain aliases")
         old_domain_aliases = pf_models.AliasDomain.objects.using(
             options["_from"]
         ).filter(target_domain=domain.name)
@@ -115,14 +115,14 @@ class Command(BaseCommand):
                 new_da.save(using=options["_to"])
                 new_da.post_create(creator)
             except core_models.Domain.DoesNotExist:
-                print ("Warning: target domain %s does not exists, "
-                       "not creating alias domain %s"
-                       % old_da.target_domain, old_da.alias_domain)
+                print("Warning: target domain %s does not exists, "
+                      "not creating alias domain %s"
+                      % old_da.target_domain, old_da.alias_domain)
                 continue
 
     def _migrate_mailbox_aliases(self, domain, options, creator):
         """Migrate mailbox aliases of a single domain."""
-        print "\tMigrating mailbox aliases"
+        print("\tMigrating mailbox aliases")
         old_aliases = pf_models.Alias.objects \
             .using(options["_from"]).filter(domain=domain.name)
         for old_al in old_aliases:
@@ -132,7 +132,7 @@ class Command(BaseCommand):
             local_part, domname = split_mailbox(old_al.address)
             if not local_part:
                 if not domname:
-                    print (
+                    print(
                         "Warning: skipping alias %s (cannot retrieve local "
                         "part). You will need to recreate it manually."
                         % old_al.address
@@ -161,7 +161,7 @@ class Command(BaseCommand):
 
     def _migrate_mailboxes(self, domain, options, creator):
         """Migrate mailboxes of a single domain."""
-        print "\tMigrating mailboxes"
+        print("\tMigrating mailboxes")
         old_mboxes = pf_models.Mailbox.objects \
             .using(options["_from"]).filter(domain=domain.name)
         for old_mb in old_mboxes:
@@ -187,7 +187,7 @@ class Command(BaseCommand):
 
     def _migrate_domain(self, pf_domain, options, creator):
         """Single domain migration."""
-        print "\nMigrating domain %s" % pf_domain.domain
+        print("\nMigrating domain %s" % pf_domain.domain)
         newdom = admin_models.Domain()
         newdom.name = pf_domain.domain
         newdom.enabled = pf_domain.active
@@ -209,9 +209,9 @@ class Command(BaseCommand):
         """
 
         if newdom is None:
-            print "\nMigrating super administrators"
+            print("\nMigrating super administrators")
         else:
-            print "\tMigrating administrators"
+            print("\tMigrating administrators")
 
         dagroup = Group.objects.using(options["_to"]).get(name="DomainAdmins")
         qset = pf_models.DomainAdmins.objects.using(options["_from"]).filter(
@@ -219,7 +219,7 @@ class Command(BaseCommand):
         for old_permission in qset.all():
             old_admin = old_permission.username
             if newdom is None:
-                print "\tMigrating %s" % old_admin.username
+                print("\tMigrating %s" % old_admin.username)
 
             # In postfixadmin, it's possible to have an admin account
             # and a user account with the same username but they are
@@ -235,7 +235,7 @@ class Command(BaseCommand):
                     .using(options["_to"]).get(username=old_admin.username))
 
                 if "SimpleUsers" == user.role:
-                    print (
+                    print(
                         "Warning: Found an admin account with the same "
                         "username as normal user '%s'. The existing user will "
                         "be promoted to admin and it's password changed to "
@@ -276,8 +276,8 @@ class Command(BaseCommand):
                 .filter(alias_domain=pf_domain.domain).exists()
             )
             if is_domain_alias:
-                print "Info: %s looks like an alias domain, skipping it" \
-                    % pf_domain.domain
+                print("Info: %s looks like an alias domain, skipping it"
+                      % pf_domain.domain)
                 continue
             self._migrate_domain(pf_domain, options, creator)
 
