@@ -1,1 +1,1 @@
-modoboa>=2.10.1
+modoboa>=2.11.0
